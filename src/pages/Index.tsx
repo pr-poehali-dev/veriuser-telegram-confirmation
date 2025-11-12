@@ -791,14 +791,14 @@ const Index = () => {
       <div>
         <Label htmlFor={isEdit ? "edit-category" : "category"}>Категория</Label>
         <Select
-          value={formData.category}
-          onValueChange={(value) => setFormData({ ...formData, category: value })}
+          value={formData.category || "none"}
+          onValueChange={(value) => setFormData({ ...formData, category: value === "none" ? "" : value })}
         >
           <SelectTrigger>
             <SelectValue placeholder="Не выбрана" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Не выбрана</SelectItem>
+            <SelectItem value="none">Не выбрана</SelectItem>
             {categories.map(cat => (
               <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
             ))}
@@ -817,14 +817,14 @@ const Index = () => {
       <div>
         <Label htmlFor={isEdit ? "edit-reason" : "reason"}>Причина верификации</Label>
         <Select
-          value={formData.reason}
-          onValueChange={(value) => setFormData({ ...formData, reason: value })}
+          value={formData.reason || "none"}
+          onValueChange={(value) => setFormData({ ...formData, reason: value === "none" ? "" : value })}
         >
           <SelectTrigger>
             <SelectValue placeholder="Не выбрана" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Не выбрана</SelectItem>
+            <SelectItem value="none">Не выбрана</SelectItem>
             {reasons.map(reason => (
               <SelectItem key={reason} value={reason}>{reason}</SelectItem>
             ))}
