@@ -462,8 +462,8 @@ const Index = () => {
               margin: 0;
             }
             body {
-              font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
-              background: white;
+              font-family: 'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif;
+              background: #ffffff;
               width: 210mm;
               height: 297mm;
               margin: 0 auto;
@@ -471,171 +471,285 @@ const Index = () => {
             .certificate {
               width: 100%;
               height: 100%;
-              background: white;
-              display: flex;
-              flex-direction: column;
+              background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+              position: relative;
+              overflow: hidden;
             }
-            .header-bg {
-              background: linear-gradient(135deg, #0088cc 0%, #005f8d 100%);
-              padding: 25px 30px;
+            .cert-border {
+              position: absolute;
+              inset: 8mm;
+              border: 2px solid #e2e8f0;
+              border-radius: 16px;
+              pointer-events: none;
+            }
+            .geometric-bg {
+              position: absolute;
+              top: 0;
+              right: 0;
+              width: 50%;
+              height: 50%;
+              background: radial-gradient(circle at top right, rgba(0,136,204,0.05) 0%, transparent 70%);
+              pointer-events: none;
+            }
+            .geometric-bg-2 {
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              width: 40%;
+              height: 40%;
+              background: radial-gradient(circle at bottom left, rgba(99,102,241,0.03) 0%, transparent 70%);
+              pointer-events: none;
+            }
+            .header {
+              padding: 20mm 15mm 15mm;
               position: relative;
             }
-            .header-content {
-              text-align: center;
-              color: white;
+            .brand {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin-bottom: 8mm;
             }
-            .logo {
-              font-size: 28px;
+            .logo-icon {
+              width: 48px;
+              height: 48px;
+              background: linear-gradient(135deg, #0088cc 0%, #0066aa 100%);
+              border-radius: 12px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 24px;
+              color: white;
               font-weight: 700;
-              margin-bottom: 5px;
+              box-shadow: 0 4px 12px rgba(0,136,204,0.2);
             }
-            .title {
-              font-size: 15px;
-              font-weight: 400;
-              opacity: 0.95;
-            }
-            .status-badge {
-              display: inline-block;
-              margin-top: 12px;
-              padding: 8px 24px;
-              border-radius: 50px;
-              font-weight: 600;
-              font-size: 13px;
-              background: ${statusColor};
-              color: white;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-            }
-            .content {
-              flex: 1;
-              padding: 25px 30px;
+            .brand-text {
               display: flex;
               flex-direction: column;
             }
-            .user-header {
-              text-align: center;
-              margin-bottom: 20px;
-              padding-bottom: 15px;
-              border-bottom: 2px solid #f0f0f0;
-            }
-            .user-name {
+            .logo {
               font-size: 24px;
               font-weight: 700;
-              color: #1a1a1a;
-              margin-bottom: 5px;
+              color: #0f172a;
+              letter-spacing: -0.5px;
+            }
+            .subtitle {
+              font-size: 12px;
+              color: #64748b;
+              font-weight: 500;
+            }
+            .cert-type {
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              background: white;
+              border: 1.5px solid ${statusColor}22;
+              border-radius: 100px;
+              padding: 10px 20px;
+              margin-top: 4mm;
+            }
+            .status-dot {
+              width: 8px;
+              height: 8px;
+              background: ${statusColor};
+              border-radius: 50%;
+              animation: pulse 2s infinite;
+            }
+            @keyframes pulse {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.5; }
+            }
+            .cert-type-text {
+              font-size: 13px;
+              font-weight: 600;
+              color: ${statusColor};
+            }
+            .main-content {
+              padding: 0 15mm 10mm;
+            }
+            .user-card {
+              background: white;
+              border-radius: 16px;
+              padding: 20px;
+              box-shadow: 0 1px 3px rgba(15,23,42,0.08);
+              border: 1px solid #e2e8f0;
+              margin-bottom: 15px;
+            }
+            .user-name {
+              font-size: 28px;
+              font-weight: 700;
+              color: #0f172a;
+              margin-bottom: 6px;
+              letter-spacing: -0.5px;
             }
             .user-username {
-              font-size: 16px;
+              font-size: 18px;
               color: #0088cc;
-              font-weight: 500;
-            }
-            .info-grid {
-              display: grid;
-              grid-template-columns: repeat(2, 1fr);
-              gap: 12px;
-              margin-bottom: 15px;
-            }
-            .info-item {
-              background: #f8f9fa;
-              padding: 10px;
-              border-radius: 8px;
-              border-left: 3px solid #0088cc;
-            }
-            .info-item.full {
-              grid-column: 1 / -1;
-            }
-            .info-label {
-              font-size: 10px;
               font-weight: 600;
-              color: #666;
-              text-transform: uppercase;
-              letter-spacing: 0.3px;
-              margin-bottom: 4px;
             }
-            .info-value {
-              font-size: 13px;
-              color: #1a1a1a;
-              font-weight: 500;
-              word-break: break-word;
-            }
-            .patents-section {
-              background: #f8f9fa;
+            .validity-card {
+              background: ${expired ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : daysLeft <= 7 ? 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' : 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)'};
+              border: 2px solid ${expired ? '#fca5a5' : daysLeft <= 7 ? '#fcd34d' : '#86efac'};
+              border-radius: 12px;
               padding: 15px;
-              border-radius: 8px;
               margin-bottom: 15px;
-            }
-            .section-title {
-              font-size: 12px;
-              font-weight: 700;
-              color: #1a1a1a;
-              margin-bottom: 10px;
-            }
-            .patent-item {
-              background: white;
-              padding: 8px;
-              border-radius: 6px;
-              margin-bottom: 6px;
-              border-left: 2px solid #0088cc;
-              font-size: 11px;
-              color: #333;
-              line-height: 1.4;
-            }
-            .patent-item:last-child {
-              margin-bottom: 0;
-            }
-            .validity-notice {
-              background: ${expired ? '#fee2e2' : daysLeft <= 7 ? '#fef3c7' : '#dcfce7'};
-              border: 2px solid ${expired ? '#ef4444' : daysLeft <= 7 ? '#f59e0b' : '#22c55e'};
-              padding: 12px;
-              border-radius: 8px;
               text-align: center;
-              margin-bottom: 15px;
             }
-            .validity-title {
+            .validity-label {
               font-size: 10px;
               font-weight: 700;
               color: ${expired ? '#991b1b' : daysLeft <= 7 ? '#92400e' : '#166534'};
               text-transform: uppercase;
-              letter-spacing: 0.3px;
-              margin-bottom: 4px;
+              letter-spacing: 1px;
+              margin-bottom: 6px;
             }
-            .validity-text {
-              font-size: 14px;
-              font-weight: 600;
+            .validity-value {
+              font-size: 16px;
+              font-weight: 700;
               color: ${expired ? '#dc2626' : daysLeft <= 7 ? '#d97706' : '#16a34a'};
             }
+            .info-grid {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 10px;
+              margin-bottom: 12px;
+            }
+            .info-card {
+              background: white;
+              border: 1px solid #e2e8f0;
+              border-radius: 10px;
+              padding: 12px;
+            }
+            .info-card.full {
+              grid-column: 1 / -1;
+            }
+            .info-label {
+              font-size: 9px;
+              font-weight: 700;
+              color: #64748b;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              margin-bottom: 6px;
+            }
+            .info-value {
+              font-size: 13px;
+              color: #0f172a;
+              font-weight: 600;
+              line-height: 1.4;
+            }
+            .patents-card {
+              background: white;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              padding: 16px;
+              margin-bottom: 12px;
+            }
+            .section-header {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin-bottom: 12px;
+            }
+            .section-icon {
+              font-size: 16px;
+            }
+            .section-title {
+              font-size: 12px;
+              font-weight: 700;
+              color: #0f172a;
+            }
+            .patent-item {
+              background: #f8fafc;
+              border-left: 3px solid #0088cc;
+              padding: 10px;
+              border-radius: 6px;
+              margin-bottom: 8px;
+              font-size: 11px;
+              color: #475569;
+              line-height: 1.5;
+            }
+            .patent-item:last-child {
+              margin-bottom: 0;
+            }
+            .patent-number {
+              font-weight: 700;
+              color: #0088cc;
+            }
             .footer {
-              background: #f8f9fa;
-              padding: 15px 30px;
-              text-align: center;
+              padding: 0 15mm 12mm;
               margin-top: auto;
             }
-            .confirmed-text {
-              font-size: 14px;
-              font-weight: 600;
-              color: #0088cc;
-              margin-bottom: 10px;
+            .footer-card {
+              background: linear-gradient(135deg, #0088cc 0%, #0066aa 100%);
+              border-radius: 12px;
+              padding: 16px;
+              text-align: center;
+              position: relative;
+              overflow: hidden;
             }
-            .date-info {
+            .footer-card::before {
+              content: '';
+              position: absolute;
+              top: -50%;
+              right: -20%;
+              width: 200px;
+              height: 200px;
+              background: rgba(255,255,255,0.1);
+              border-radius: 50%;
+            }
+            .confirmed-badge {
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              background: rgba(255,255,255,0.2);
+              backdrop-filter: blur(10px);
+              border: 1px solid rgba(255,255,255,0.3);
+              border-radius: 100px;
+              padding: 8px 20px;
+              margin-bottom: 12px;
+            }
+            .check-icon {
+              width: 20px;
+              height: 20px;
+              background: white;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #0088cc;
+              font-size: 12px;
+              font-weight: 700;
+            }
+            .confirmed-text {
+              font-size: 13px;
+              font-weight: 600;
+              color: white;
+            }
+            .date-row {
               display: flex;
               justify-content: center;
-              gap: 30px;
-              flex-wrap: wrap;
+              gap: 40px;
+              position: relative;
             }
-            .date-item {
-              text-align: center;
+            .date-block {
+              background: rgba(255,255,255,0.15);
+              backdrop-filter: blur(10px);
+              border: 1px solid rgba(255,255,255,0.2);
+              border-radius: 8px;
+              padding: 10px 16px;
             }
             .date-label {
               font-size: 9px;
-              color: #666;
+              color: rgba(255,255,255,0.8);
               text-transform: uppercase;
-              letter-spacing: 0.3px;
-              margin-bottom: 3px;
+              letter-spacing: 0.5px;
+              margin-bottom: 4px;
+              font-weight: 600;
             }
             .date-value {
               font-size: 12px;
-              font-weight: 600;
-              color: #1a1a1a;
+              color: white;
+              font-weight: 700;
             }
             @media print {
               body {
@@ -646,78 +760,96 @@ const Index = () => {
         </head>
         <body>
           <div class="certificate">
-            <div class="header-bg">
-              <div class="header-content">
-                <div class="logo">VeriUserRU</div>
-                <div class="title">Официальный сертификат верификации</div>
-                <div class="status-badge">${statusName}</div>
+            <div class="geometric-bg"></div>
+            <div class="geometric-bg-2"></div>
+            <div class="cert-border"></div>
+            
+            <div class="header">
+              <div class="brand">
+                <div class="logo-icon">V</div>
+                <div class="brand-text">
+                  <div class="logo">VeriUserRU</div>
+                  <div class="subtitle">Сертификат верификации</div>
+                </div>
+              </div>
+              <div class="cert-type">
+                <div class="status-dot"></div>
+                <span class="cert-type-text">${statusName}</span>
               </div>
             </div>
             
-            <div class="content">
-              <div class="user-header">
+            <div class="main-content">
+              <div class="user-card">
                 <div class="user-name">${user.name}</div>
                 <div class="user-username">@${user.username}</div>
               </div>
 
-              <div class="validity-notice">
-                <div class="validity-title">
+              <div class="validity-card">
+                <div class="validity-label">
                   ${expired ? 'Сертификат истёк' : daysLeft <= 7 ? 'Требуется обновление' : 'Срок действия'}
                 </div>
-                <div class="validity-text">
+                <div class="validity-value">
                   ${expired ? 'Требуется повторная проверка' : `Действителен ещё ${daysLeft} ${daysLeft === 1 ? 'день' : daysLeft < 5 ? 'дня' : 'дней'}`}
                 </div>
               </div>
 
               <div class="info-grid">
-                <div class="info-item">
+                <div class="info-card">
                   <div class="info-label">Канал / Профиль</div>
                   <div class="info-value">${user.channel}</div>
                 </div>
-                <div class="info-item">
+                <div class="info-card">
                   <div class="info-label">Возраст</div>
                   <div class="info-value">${user.age} лет</div>
                 </div>
                 ${user.category ? `
-                  <div class="info-item">
+                  <div class="info-card">
                     <div class="info-label">Категория</div>
                     <div class="info-value">${getCategoryName(user.category)}</div>
                   </div>
                 ` : ''}
                 ${user.socialNetworks ? `
-                  <div class="info-item ${!user.category ? 'full' : ''}">
+                  <div class="info-card ${!user.category ? 'full' : ''}">
                     <div class="info-label">Другие социальные сети</div>
                     <div class="info-value">${user.socialNetworks}</div>
                   </div>
                 ` : ''}
                 ${user.reason ? `
-                  <div class="info-item full">
+                  <div class="info-card full">
                     <div class="info-label">Причина верификации</div>
                     <div class="info-value">${user.reason}</div>
                   </div>
                 ` : ''}
               </div>
 
-              <div class="patents-section">
-                <div class="section-title">🔐 Подтверждённые права собственности</div>
+              <div class="patents-card">
+                <div class="section-header">
+                  <span class="section-icon">🔐</span>
+                  <span class="section-title">Подтверждённые права собственности</span>
+                </div>
                 ${user.patents.map((patent, index) => `
                   <div class="patent-item">
-                    <strong>#${index + 1}</strong> ${patent}
+                    <span class="patent-number">#${index + 1}</span> ${patent}
                   </div>
                 `).join('')}
               </div>
             </div>
 
             <div class="footer">
-              <div class="confirmed-text">✓ Подтверждено командой VeriUserRU</div>
-              <div class="date-info">
-                <div class="date-item">
-                  <div class="date-label">Дата выдачи</div>
-                  <div class="date-value">${new Date(user.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              <div class="footer-card">
+                <div class="confirmed-badge">
+                  <div class="check-icon">✓</div>
+                  <span class="confirmed-text">Подтверждено командой VeriUserRU</span>
                 </div>
-                <div class="date-item">
-                  <div class="date-label">Действителен до</div>
-                  <div class="date-value">${new Date(user.expiresAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                <div class="date-row">
+                  <div class="date-block">
+                    <div class="date-label">Дата выдачи</div>
+                    <div class="date-value">${new Date(user.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                  </div>
+                  <div class="date-block">
+                    <div class="date-label">Действителен до</div>
+                    <div class="date-value">${new Date(user.expiresAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -752,10 +884,10 @@ const Index = () => {
   const renderForm = (isEdit = false) => (
     <div className="space-y-4">
       <div>
-        <Label htmlFor={isEdit ? "edit-name" : "name"}>Имя (Псевдоним) *</Label>
+        <Label htmlFor={isEdit ? "edit-name" : "name"}>Владелец *</Label>
         <Input
           id={isEdit ? "edit-name" : "name"}
-          placeholder="Иван Иванов"
+          placeholder="Иван Иванов (владелец аккаунта)"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
         />
@@ -843,7 +975,7 @@ const Index = () => {
           {formData.patents.map((patent, index) => (
             <div key={index} className="flex gap-2">
               <Input
-                placeholder={`Пользователю ${formData.name || '[имя]'} принадлежит @${formData.username || '[username]'}`}
+                placeholder={`Владельцу ${formData.name || '[имя]'} принадлежит @${formData.username || '[username]'}`}
                 value={patent}
                 onChange={(e) => updatePatent(index, e.target.value)}
               />
@@ -1032,7 +1164,7 @@ const Index = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Username</TableHead>
-                      <TableHead>Имя</TableHead>
+                      <TableHead>Владелец</TableHead>
                       <TableHead>Канал</TableHead>
                       <TableHead>Статус</TableHead>
                       <TableHead>Срок действия</TableHead>
