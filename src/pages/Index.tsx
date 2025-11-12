@@ -1201,6 +1201,21 @@ const Index = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
+                                onClick={() => {
+                                  const url = `${window.location.origin}/certificate/${user.id}`;
+                                  navigator.clipboard.writeText(url);
+                                  toast({
+                                    title: "Скопировано",
+                                    description: "Ссылка на сертификат скопирована"
+                                  });
+                                }}
+                              >
+                                <Icon name="Link" size={16} className="mr-1" />
+                                Ссылка
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 onClick={() => handleEditUser(user)}
                               >
                                 <Icon name="Pencil" size={16} className="mr-1" />
