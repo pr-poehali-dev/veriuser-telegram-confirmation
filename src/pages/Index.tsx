@@ -7,9 +7,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+
+interface CustomStatus {
+  id: string;
+  name: string;
+  color: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 interface VerifiedUser {
   id: string;
@@ -17,41 +29,209 @@ interface VerifiedUser {
   username: string;
   channel: string;
   age: string;
+  category?: string;
   reason?: string;
   patents: string[];
   socialNetworks: string;
-  status: 'verified' | 'fraud';
+  status: string;
   createdAt: string;
   expiresAt: string;
 }
 
+const DEFAULT_STATUSES: CustomStatus[] = [
+  { id: 'verified', name: 'Верифицирован', color: '#22c55e' },
+  { id: 'fraud', name: 'Мошенник', color: '#ef4444' }
+];
+
+const DEFAULT_CATEGORIES: Category[] = [
+  { id: 'blogger', name: 'Блогер' },
+  { id: 'business', name: 'Бизнес' },
+  { id: 'personal', name: 'Личный аккаунт' }
+];
+
+const DEFAULT_REASONS: string[] = [
+  'Подтверждение личности',
+  'Защита от мошенников',
+  'Коммерческая деятельность'
+];
+
 const Index = () => {
   const [users, setUsers] = useState<VerifiedUser[]>([]);
+  const [customStatuses, setCustomStatuses] = useState<CustomStatus[]>(DEFAULT_STATUSES);
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+  const [reasons, setReasons] = useState<string[]>(DEFAULT_REASONS);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'verified' | 'fraud'>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [editingUser, setEditingUser] = useState<VerifiedUser | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+  const [newStatusName, setNewStatusName] = useState('');
+  const [newStatusColor, setNewStatusColor] = useState('#3b82f6');
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newReason, setNewReason] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     username: '',
     channel: '',
     age: '',
+    category: '',
     reason: '',
     patents: [''],
     socialNetworks: '',
-    status: 'verified' as 'verified' | 'fraud'
+    status: 'verified'
   });
   const { toast } = useToast();
 
   useEffect(() => {
-    const stored = localStorage.getItem('veriuser_data');
+    const stored = localStorage.getItem('veriuserru_data');
     if (stored) {
       setUsers(JSON.parse(stored));
+    }
+    const storedStatuses = localStorage.getItem('veriuserru_statuses');
+    if (storedStatuses) {
+      setCustomStatuses(JSON.parse(storedStatuses));
+    }
+    const storedCategories = localStorage.getItem('veriuserru_categories');
+    if (storedCategories) {
+      setCategories(JSON.parse(storedCategories));
+    }
+    const storedReasons = localStorage.getItem('veriuserru_reasons');
+    if (storedReasons) {
+      setReasons(JSON.parse(storedReasons));
     }
   }, []);
 
   const saveToLocalStorage = (data: VerifiedUser[]) => {
-    localStorage.setItem('veriuser_data', JSON.stringify(data));
+    localStorage.setItem('veriuserru_data', JSON.stringify(data));
+  };
+
+  const saveStatusesToLocalStorage = (data: CustomStatus[]) => {
+    localStorage.setItem('veriuserru_statuses', JSON.stringify(data));
+  };
+
+  const saveCategoriesToLocalStorage = (data: Category[]) => {
+    localStorage.setItem('veriuserru_categories', JSON.stringify(data));
+  };
+
+  const saveReasonsToLocalStorage = (data: string[]) => {
+    localStorage.setItem('veriuserru_reasons', JSON.stringify(data));
+  };
+
+  const addCustomStatus = () => {
+    if (!newStatusName.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Введите название статуса",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newStatus: CustomStatus = {
+      id: Date.now().toString(),
+      name: newStatusName,
+      color: newStatusColor
+    };
+
+    const updated = [...customStatuses, newStatus];
+    setCustomStatuses(updated);
+    saveStatusesToLocalStorage(updated);
+    setNewStatusName('');
+    setNewStatusColor('#3b82f6');
+
+    toast({
+      title: "Успешно",
+      description: "Статус добавлен"
+    });
+  };
+
+  const deleteCustomStatus = (id: string) => {
+    if (id === 'verified' || id === 'fraud') {
+      toast({
+        title: "Ошибка",
+        description: "Нельзя удалить базовые статусы",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const updated = customStatuses.filter(s => s.id !== id);
+    setCustomStatuses(updated);
+    saveStatusesToLocalStorage(updated);
+
+    toast({
+      title: "Удалено",
+      description: "Статус удален"
+    });
+  };
+
+  const addCategory = () => {
+    if (!newCategoryName.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Введите название категории",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newCategory: Category = {
+      id: Date.now().toString(),
+      name: newCategoryName
+    };
+
+    const updated = [...categories, newCategory];
+    setCategories(updated);
+    saveCategoriesToLocalStorage(updated);
+    setNewCategoryName('');
+
+    toast({
+      title: "Успешно",
+      description: "Категория добавлена"
+    });
+  };
+
+  const deleteCategory = (id: string) => {
+    const updated = categories.filter(c => c.id !== id);
+    setCategories(updated);
+    saveCategoriesToLocalStorage(updated);
+
+    toast({
+      title: "Удалено",
+      description: "Категория удалена"
+    });
+  };
+
+  const addReason = () => {
+    if (!newReason.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Введите причину",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const updated = [...reasons, newReason];
+    setReasons(updated);
+    saveReasonsToLocalStorage(updated);
+    setNewReason('');
+
+    toast({
+      title: "Успешно",
+      description: "Причина добавлена"
+    });
+  };
+
+  const deleteReason = (reason: string) => {
+    const updated = reasons.filter(r => r !== reason);
+    setReasons(updated);
+    saveReasonsToLocalStorage(updated);
+
+    toast({
+      title: "Удалено",
+      description: "Причина удалена"
+    });
   };
 
   const addPatentField = () => {
@@ -92,6 +272,7 @@ const Index = () => {
       username: formData.username,
       channel: formData.channel,
       age: formData.age,
+      category: formData.category || undefined,
       reason: formData.reason || undefined,
       patents: filledPatents,
       socialNetworks: formData.socialNetworks,
@@ -109,6 +290,7 @@ const Index = () => {
       username: '',
       channel: '',
       age: '',
+      category: '',
       reason: '',
       patents: [''],
       socialNetworks: '',
@@ -128,6 +310,7 @@ const Index = () => {
       username: user.username,
       channel: user.channel,
       age: user.age,
+      category: user.category || '',
       reason: user.reason || '',
       patents: user.patents,
       socialNetworks: user.socialNetworks,
@@ -156,6 +339,7 @@ const Index = () => {
       username: formData.username,
       channel: formData.channel,
       age: formData.age,
+      category: formData.category || undefined,
       reason: formData.reason || undefined,
       patents: filledPatents,
       socialNetworks: formData.socialNetworks,
@@ -173,6 +357,7 @@ const Index = () => {
       username: '',
       channel: '',
       age: '',
+      category: '',
       reason: '',
       patents: [''],
       socialNetworks: '',
@@ -191,7 +376,7 @@ const Index = () => {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `veriuser_export_${Date.now()}.json`;
+    link.download = `veriuserru_export_${Date.now()}.json`;
     link.click();
     URL.revokeObjectURL(url);
 
@@ -235,12 +420,30 @@ const Index = () => {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
+  const getStatusColor = (statusId: string) => {
+    const status = customStatuses.find(s => s.id === statusId);
+    return status?.color || '#3b82f6';
+  };
+
+  const getStatusName = (statusId: string) => {
+    const status = customStatuses.find(s => s.id === statusId);
+    return status?.name || statusId;
+  };
+
+  const getCategoryName = (categoryId?: string) => {
+    if (!categoryId) return '';
+    const category = categories.find(c => c.id === categoryId);
+    return category?.name || categoryId;
+  };
+
   const handlePrintCertificate = (user: VerifiedUser) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
     const daysLeft = getDaysRemaining(user.expiresAt);
     const expired = isExpired(user.expiresAt);
+    const statusColor = getStatusColor(user.status);
+    const statusName = getStatusName(user.status);
 
     const html = `
       <!DOCTYPE html>
@@ -254,151 +457,128 @@ const Index = () => {
               padding: 0;
               box-sizing: border-box;
             }
+            @page {
+              size: A4;
+              margin: 0;
+            }
             body {
               font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              padding: 40px 20px;
-              min-height: 100vh;
-              display: flex;
-              align-items: center;
-              justify-content: center;
+              background: white;
+              width: 210mm;
+              height: 297mm;
+              margin: 0 auto;
             }
             .certificate {
-              max-width: 900px;
               width: 100%;
+              height: 100%;
               background: white;
-              border-radius: 24px;
-              box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-              overflow: hidden;
-              position: relative;
+              display: flex;
+              flex-direction: column;
             }
             .header-bg {
               background: linear-gradient(135deg, #0088cc 0%, #005f8d 100%);
-              padding: 50px 40px;
+              padding: 25px 30px;
               position: relative;
-              overflow: hidden;
-            }
-            .header-bg::before {
-              content: '';
-              position: absolute;
-              top: -50%;
-              right: -10%;
-              width: 300px;
-              height: 300px;
-              background: rgba(255,255,255,0.1);
-              border-radius: 50%;
-            }
-            .header-bg::after {
-              content: '';
-              position: absolute;
-              bottom: -30%;
-              left: -5%;
-              width: 200px;
-              height: 200px;
-              background: rgba(255,255,255,0.08);
-              border-radius: 50%;
             }
             .header-content {
-              position: relative;
-              z-index: 1;
               text-align: center;
               color: white;
             }
             .logo {
-              font-size: 36px;
+              font-size: 28px;
               font-weight: 700;
-              margin-bottom: 8px;
-              text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+              margin-bottom: 5px;
             }
             .title {
-              font-size: 20px;
+              font-size: 15px;
               font-weight: 400;
               opacity: 0.95;
-              letter-spacing: 0.5px;
             }
             .status-badge {
               display: inline-block;
-              margin-top: 20px;
-              padding: 12px 32px;
+              margin-top: 12px;
+              padding: 8px 24px;
               border-radius: 50px;
               font-weight: 600;
-              font-size: 16px;
-              background: ${user.status === 'verified' ? '#22c55e' : '#ef4444'};
+              font-size: 13px;
+              background: ${statusColor};
               color: white;
-              box-shadow: 0 4px 12px rgba(0,0,0,0.15);
               text-transform: uppercase;
-              letter-spacing: 1px;
+              letter-spacing: 0.5px;
             }
             .content {
-              padding: 50px 50px 40px;
+              flex: 1;
+              padding: 25px 30px;
+              display: flex;
+              flex-direction: column;
             }
             .user-header {
               text-align: center;
-              margin-bottom: 40px;
-              padding-bottom: 30px;
+              margin-bottom: 20px;
+              padding-bottom: 15px;
               border-bottom: 2px solid #f0f0f0;
             }
             .user-name {
-              font-size: 32px;
+              font-size: 24px;
               font-weight: 700;
               color: #1a1a1a;
-              margin-bottom: 8px;
+              margin-bottom: 5px;
             }
             .user-username {
-              font-size: 20px;
+              font-size: 16px;
               color: #0088cc;
               font-weight: 500;
             }
             .info-grid {
               display: grid;
               grid-template-columns: repeat(2, 1fr);
-              gap: 25px;
-              margin-bottom: 35px;
+              gap: 12px;
+              margin-bottom: 15px;
             }
             .info-item {
               background: #f8f9fa;
-              padding: 20px;
-              border-radius: 12px;
-              border-left: 4px solid #0088cc;
+              padding: 10px;
+              border-radius: 8px;
+              border-left: 3px solid #0088cc;
+            }
+            .info-item.full {
+              grid-column: 1 / -1;
             }
             .info-label {
-              font-size: 13px;
+              font-size: 10px;
               font-weight: 600;
               color: #666;
               text-transform: uppercase;
-              letter-spacing: 0.5px;
-              margin-bottom: 8px;
+              letter-spacing: 0.3px;
+              margin-bottom: 4px;
             }
             .info-value {
-              font-size: 16px;
+              font-size: 13px;
               color: #1a1a1a;
               font-weight: 500;
               word-break: break-word;
             }
             .patents-section {
-              background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-              padding: 25px;
-              border-radius: 12px;
-              margin-bottom: 35px;
+              background: #f8f9fa;
+              padding: 15px;
+              border-radius: 8px;
+              margin-bottom: 15px;
             }
             .section-title {
-              font-size: 16px;
+              font-size: 12px;
               font-weight: 700;
               color: #1a1a1a;
-              margin-bottom: 15px;
-              display: flex;
-              align-items: center;
-              gap: 8px;
+              margin-bottom: 10px;
             }
             .patent-item {
               background: white;
-              padding: 15px;
-              border-radius: 8px;
-              margin-bottom: 10px;
-              border-left: 3px solid #0088cc;
-              font-size: 15px;
+              padding: 8px;
+              border-radius: 6px;
+              margin-bottom: 6px;
+              border-left: 2px solid #0088cc;
+              font-size: 11px;
               color: #333;
-              line-height: 1.5;
+              line-height: 1.4;
             }
             .patent-item:last-child {
               margin-bottom: 0;
@@ -406,94 +586,71 @@ const Index = () => {
             .validity-notice {
               background: ${expired ? '#fee2e2' : daysLeft <= 7 ? '#fef3c7' : '#dcfce7'};
               border: 2px solid ${expired ? '#ef4444' : daysLeft <= 7 ? '#f59e0b' : '#22c55e'};
-              padding: 20px;
-              border-radius: 12px;
+              padding: 12px;
+              border-radius: 8px;
               text-align: center;
-              margin-bottom: 30px;
+              margin-bottom: 15px;
             }
             .validity-title {
-              font-size: 14px;
+              font-size: 10px;
               font-weight: 700;
               color: ${expired ? '#991b1b' : daysLeft <= 7 ? '#92400e' : '#166534'};
               text-transform: uppercase;
-              letter-spacing: 0.5px;
-              margin-bottom: 8px;
+              letter-spacing: 0.3px;
+              margin-bottom: 4px;
             }
             .validity-text {
-              font-size: 18px;
+              font-size: 14px;
               font-weight: 600;
               color: ${expired ? '#dc2626' : daysLeft <= 7 ? '#d97706' : '#16a34a'};
             }
-            .validity-subtext {
-              font-size: 13px;
-              color: ${expired ? '#991b1b' : daysLeft <= 7 ? '#92400e' : '#166534'};
-              margin-top: 5px;
-            }
             .footer {
               background: #f8f9fa;
-              padding: 30px;
+              padding: 15px 30px;
               text-align: center;
+              margin-top: auto;
             }
             .confirmed-text {
-              font-size: 18px;
+              font-size: 14px;
               font-weight: 600;
               color: #0088cc;
-              margin-bottom: 15px;
+              margin-bottom: 10px;
             }
             .date-info {
               display: flex;
               justify-content: center;
-              gap: 40px;
+              gap: 30px;
               flex-wrap: wrap;
             }
             .date-item {
               text-align: center;
             }
             .date-label {
-              font-size: 12px;
+              font-size: 9px;
               color: #666;
               text-transform: uppercase;
-              letter-spacing: 0.5px;
-              margin-bottom: 5px;
+              letter-spacing: 0.3px;
+              margin-bottom: 3px;
             }
             .date-value {
-              font-size: 15px;
+              font-size: 12px;
               font-weight: 600;
               color: #1a1a1a;
             }
-            .watermark {
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%) rotate(-45deg);
-              font-size: 120px;
-              font-weight: 900;
-              color: rgba(0,136,204,0.03);
-              pointer-events: none;
-              white-space: nowrap;
-            }
             @media print {
               body {
-                padding: 0;
-                background: white;
-              }
-              .certificate {
-                box-shadow: none;
-                max-width: 100%;
+                margin: 0;
               }
             }
           </style>
         </head>
         <body>
           <div class="certificate">
-            <div class="watermark">VERIFIED</div>
             <div class="header-bg">
               <div class="header-content">
-                <div class="logo">VeriUser.Telegram</div>
+                <div class="logo">VeriUserRU</div>
                 <div class="title">Официальный сертификат верификации</div>
-                <div class="status-badge">
-                  ${user.status === 'verified' ? '✓ Верифицирован' : '⚠ Мошенник'}
-                </div>
+                <div class="status-badge">${statusName}</div>
               </div>
             </div>
             
@@ -510,7 +667,6 @@ const Index = () => {
                 <div class="validity-text">
                   ${expired ? 'Требуется повторная проверка' : `Действителен ещё ${daysLeft} ${daysLeft === 1 ? 'день' : daysLeft < 5 ? 'дня' : 'дней'}`}
                 </div>
-                ${expired || daysLeft <= 7 ? '<div class="validity-subtext">Свяжитесь с администрацией для продления</div>' : ''}
               </div>
 
               <div class="info-grid">
@@ -522,19 +678,28 @@ const Index = () => {
                   <div class="info-label">Возраст</div>
                   <div class="info-value">${user.age} лет</div>
                 </div>
+                ${user.category ? `
+                  <div class="info-item">
+                    <div class="info-label">Категория</div>
+                    <div class="info-value">${getCategoryName(user.category)}</div>
+                  </div>
+                ` : ''}
                 ${user.socialNetworks ? `
-                  <div class="info-item" style="grid-column: 1 / -1;">
+                  <div class="info-item ${!user.category ? 'full' : ''}">
                     <div class="info-label">Другие социальные сети</div>
                     <div class="info-value">${user.socialNetworks}</div>
+                  </div>
+                ` : ''}
+                ${user.reason ? `
+                  <div class="info-item full">
+                    <div class="info-label">Причина верификации</div>
+                    <div class="info-value">${user.reason}</div>
                   </div>
                 ` : ''}
               </div>
 
               <div class="patents-section">
-                <div class="section-title">
-                  <span>🔐</span>
-                  <span>Подтверждённые права собственности</span>
-                </div>
+                <div class="section-title">🔐 Подтверждённые права собственности</div>
                 ${user.patents.map((patent, index) => `
                   <div class="patent-item">
                     <strong>#${index + 1}</strong> ${patent}
@@ -544,9 +709,7 @@ const Index = () => {
             </div>
 
             <div class="footer">
-              <div class="confirmed-text">
-                ✓ Подтверждено командой VeriUser.Telegram
-              </div>
+              <div class="confirmed-text">✓ Подтверждено командой VeriUserRU</div>
               <div class="date-info">
                 <div class="date-item">
                   <div class="date-label">Дата выдачи</div>
@@ -626,6 +789,23 @@ const Index = () => {
         />
       </div>
       <div>
+        <Label htmlFor={isEdit ? "edit-category" : "category"}>Категория</Label>
+        <Select
+          value={formData.category}
+          onValueChange={(value) => setFormData({ ...formData, category: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Не выбрана" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Не выбрана</SelectItem>
+            {categories.map(cat => (
+              <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
         <Label htmlFor={isEdit ? "edit-social" : "social"}>Другие социальные сети</Label>
         <Input
           id={isEdit ? "edit-social" : "social"}
@@ -635,14 +815,21 @@ const Index = () => {
         />
       </div>
       <div>
-        <Label htmlFor={isEdit ? "edit-reason" : "reason"}>Причина верификации (опционально)</Label>
-        <Textarea
-          id={isEdit ? "edit-reason" : "reason"}
-          placeholder="Опишите причину..."
+        <Label htmlFor={isEdit ? "edit-reason" : "reason"}>Причина верификации</Label>
+        <Select
           value={formData.reason}
-          onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-          rows={2}
-        />
+          onValueChange={(value) => setFormData({ ...formData, reason: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Не выбрана" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Не выбрана</SelectItem>
+            {reasons.map(reason => (
+              <SelectItem key={reason} value={reason}>{reason}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -678,14 +865,17 @@ const Index = () => {
         <Label htmlFor={isEdit ? "edit-status" : "status"}>Статус верификации *</Label>
         <Select
           value={formData.status}
-          onValueChange={(value: 'verified' | 'fraud') => setFormData({ ...formData, status: value })}
+          onValueChange={(value) => setFormData({ ...formData, status: value })}
         >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="verified">Верифицированный аккаунт</SelectItem>
-            <SelectItem value="fraud">Мошенник</SelectItem>
+            {customStatuses.map(status => (
+              <SelectItem key={status.id} value={status.id}>
+                <span style={{ color: status.color }}>●</span> {status.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -704,11 +894,20 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-50">
       <div className="container mx-auto py-8 px-4">
         <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-3">
-            <Icon name="ShieldCheck" size={40} />
-            VeriUser.Telegram
-          </h1>
-          <p className="text-muted-foreground text-lg">Система верификации пользователей Telegram</p>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold text-primary flex items-center gap-3">
+              <Icon name="ShieldCheck" size={40} />
+              VeriUserRU
+            </h1>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setIsSettingsDialogOpen(true)}
+            >
+              <Icon name="Settings" size={20} />
+            </Button>
+          </div>
+          <p className="text-muted-foreground text-lg">Система верификации пользователей</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -750,14 +949,17 @@ const Index = () => {
 
               <div>
                 <Label htmlFor="filter">Фильтр по статусу</Label>
-                <Select value={statusFilter} onValueChange={(value: 'all' | 'verified' | 'fraud') => setStatusFilter(value)}>
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Все записи</SelectItem>
-                    <SelectItem value="verified">Верифицированные</SelectItem>
-                    <SelectItem value="fraud">Мошенники</SelectItem>
+                    {customStatuses.map(status => (
+                      <SelectItem key={status.id} value={status.id}>
+                        <span style={{ color: status.color }}>●</span> {status.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -849,10 +1051,12 @@ const Index = () => {
                           <TableCell>{user.channel}</TableCell>
                           <TableCell>
                             <Badge
-                              variant={user.status === 'verified' ? 'default' : 'destructive'}
-                              className={user.status === 'verified' ? 'bg-success hover:bg-success/90' : ''}
+                              style={{ 
+                                backgroundColor: getStatusColor(user.status),
+                                color: 'white'
+                              }}
                             >
-                              {user.status === 'verified' ? 'Верифицирован' : 'Мошенник'}
+                              {getStatusName(user.status)}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -910,6 +1114,129 @@ const Index = () => {
             </DialogDescription>
           </DialogHeader>
           {renderForm(true)}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSettingsDialogOpen} onOpenChange={setIsSettingsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Settings" size={24} />
+              Настройки системы
+            </DialogTitle>
+            <DialogDescription>
+              Управление статусами, категориями и причинами верификации
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Tabs defaultValue="statuses" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="statuses">Статусы</TabsTrigger>
+              <TabsTrigger value="categories">Категории</TabsTrigger>
+              <TabsTrigger value="reasons">Причины</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="statuses" className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Название статуса"
+                  value={newStatusName}
+                  onChange={(e) => setNewStatusName(e.target.value)}
+                />
+                <Input
+                  type="color"
+                  value={newStatusColor}
+                  onChange={(e) => setNewStatusColor(e.target.value)}
+                  className="w-20"
+                />
+                <Button onClick={addCustomStatus}>
+                  <Icon name="Plus" size={16} className="mr-1" />
+                  Добавить
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {customStatuses.map(status => (
+                  <div key={status.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-6 h-6 rounded-full"
+                        style={{ backgroundColor: status.color }}
+                      />
+                      <span className="font-medium">{status.name}</span>
+                      {(status.id === 'verified' || status.id === 'fraud') && (
+                        <Badge variant="outline" className="text-xs">Системный</Badge>
+                      )}
+                    </div>
+                    {status.id !== 'verified' && status.id !== 'fraud' && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => deleteCustomStatus(status.id)}
+                      >
+                        <Icon name="Trash2" size={16} />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="categories" className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Название категории"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                />
+                <Button onClick={addCategory}>
+                  <Icon name="Plus" size={16} className="mr-1" />
+                  Добавить
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {categories.map(category => (
+                  <div key={category.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <span className="font-medium">{category.name}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => deleteCategory(category.id)}
+                    >
+                      <Icon name="Trash2" size={16} />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="reasons" className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Причина верификации"
+                  value={newReason}
+                  onChange={(e) => setNewReason(e.target.value)}
+                />
+                <Button onClick={addReason}>
+                  <Icon name="Plus" size={16} className="mr-1" />
+                  Добавить
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {reasons.map(reason => (
+                  <div key={reason} className="flex items-center justify-between p-3 border rounded-lg">
+                    <span className="font-medium">{reason}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => deleteReason(reason)}
+                    >
+                      <Icon name="Trash2" size={16} />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </div>
